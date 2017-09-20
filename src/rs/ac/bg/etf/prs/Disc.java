@@ -1,5 +1,8 @@
 package rs.ac.bg.etf.prs;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+
 /**
  * Project name: PRS-SimulacijaHDD
  * Created by Stefan on 20-Sep-17.
@@ -13,6 +16,10 @@ public class Disc {
     private int cylinders;
     private int sectors; //check: is this needed?
 
+    private Event event;
+
+    private Queue<Event> queue = new ArrayDeque<>();
+
     /**
      * Rotational delay time
      */
@@ -24,6 +31,7 @@ public class Disc {
         this.rpm = rpm;
         this.cylinders = cylinders;
         this.sectors = sectors;
+        event = new Event();
     }
 
     /**
@@ -32,6 +40,8 @@ public class Disc {
     public void seek(){
         this.Trd = 30/(rpm*1.0); // (60/rpm)/2
         //TODO: phase 1 calculation
+
+        //uradi nesto sa event
     }
 
     /**
@@ -39,6 +49,8 @@ public class Disc {
      */
     public void rotationalDelay(){
         //TODO: phase 2 calculation
+
+        //uradi nesto sa event
     }
 
     /**
@@ -47,5 +59,11 @@ public class Disc {
     public void transferTime(){
         //TODO: phase 3 calculation [transfer time]
         //broj slogova koji trebaju da se ucitaju?
+
+        //uradi nesto sa event
+    }
+
+    public void putEvent() {
+         queue.add(event);
     }
 }

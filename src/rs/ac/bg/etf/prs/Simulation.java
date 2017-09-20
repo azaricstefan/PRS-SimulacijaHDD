@@ -1,5 +1,7 @@
 package rs.ac.bg.etf.prs;
 
+import javax.swing.*;
+
 public class Simulation {
 
     public static void main(String[] args) {
@@ -16,6 +18,16 @@ public class Simulation {
         int max = Integer.parseInt(args[2]); //maximum possible cylinder
 
         requestGenerator.generate(amountOfRequests, min, max);
+
+
+        //GUI
+        JFrame frame = new JFrame("Form");
+        frame.setContentPane(new Form(disc).rootPanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setLocation(500,500);
+        //
 
 
         while(true){
