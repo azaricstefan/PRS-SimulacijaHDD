@@ -17,13 +17,20 @@ public class Disc {
      * Rotational delay time
      */
     private Double Trd;
+    /**
+     * Time to read one sector/part
+     */
+    private Double Ttr;
+
+    private Double sizeOfOneRecord;
 
     //TODO: sta treba da ima disk jos?
 
-    public Disc(int rpm, int cylinders, int sectors){
+    public Disc(int rpm, int cylinders, int sectors, Double sizeOfOneRecord){
         this.rpm = rpm;
         this.cylinders = cylinders;
         this.sectors = sectors;
+        this.sizeOfOneRecord = sizeOfOneRecord;
     }
 
     /**
@@ -38,7 +45,9 @@ public class Disc {
      * Second phase, calculate rotational delay
      */
     public void rotationalDelay(){
+        this.Ttr = sizeOfOneRecord * Trd;
         //TODO: phase 2 calculation
+
     }
 
     /**

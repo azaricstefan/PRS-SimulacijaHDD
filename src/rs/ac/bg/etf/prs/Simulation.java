@@ -7,7 +7,7 @@ public class Simulation {
         Scheduler scheduler = new Scheduler();
         RequestGenerator requestGenerator = new RequestGenerator(scheduler);
 
-        Disc disc = new Disc(7200,2000,500); //
+        Disc disc = new Disc(7200,2000,500, 1.0/6.0); //
 
         Event event;
 
