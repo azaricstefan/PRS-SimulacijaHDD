@@ -38,7 +38,8 @@ public class Simulation {
 
             for (int i = 0; i < amountOfRequests; i++) {
                 writer.println("Request number: " + i + 1);
-                csvWriter.print("" + i + 1 + ",");
+                int tmpCnt = i+1;
+                csvWriter.print("" + tmpCnt + ",");
                 List<Event> threeEvents = scheduler.nextEvent();
 
                 sum1 += threeEvents.get(0).getTime(); //testing only
