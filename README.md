@@ -17,3 +17,7 @@ Predmet: Performanse Računarskih Sistema
 - Klasa Simulation je klasa u kojoj se nalazi main metoda i gde se radi ispis rezultata simulacije
 
 *Ovo je kratak opis klasa i njihovih funkcionalnosti, celokupna dokumentacija za njih je napisana u blokovima komentara.*
+
+
+## Rezultati simulacija:
+Rezultati se nalaze u folderu Results sa posebnim README fajlovima.
