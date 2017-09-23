@@ -20,3 +20,6 @@
 - Prosečno vreme za prvu fazu: **~46.55 ms**
 - Prosečno vreme za drugu fazu: **~3.47 ms**
 - Prosečno vreme za treću fazu: **~1.39 ms**
+
+Primer jednog grafikona za izveštaj 1:
+<img src="https://github.com/xlstefan/PRS-SimulacijaHDD/blob/master/Results/1/faze%20hdd.png"/>
