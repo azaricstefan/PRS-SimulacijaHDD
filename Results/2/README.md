@@ -1,12 +1,12 @@
-#Izveštaj 2:
+# Izveštaj 2:
 
-###Karakteristike diska:
+### Karakteristike diska:
 
 1. RPM - 3600
 2. Broj cilindara - 2000
 
 
-###Karakteristike za zahtev:
+### Karakteristike za zahtev:
 
 1. Broj zahteva: 30 000
 2. Minimalan broj cilindra za random generator: 0
@@ -14,7 +14,7 @@
 4. Broj sektora: 6
 
 
-##Rezultati:
+## Rezultati:
 
 - Prosečno vreme po zahtevu: **~102.97 ms**
 - Prosečno vreme za prvu fazu: **~93.22 ms**
