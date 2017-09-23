@@ -11,7 +11,7 @@ import java.util.Queue;
  */
 
 /**
- * Ova klasa sadrži Event-ove koje je izgenerisao {@link Disc} u redu za čekanje
+ * Ova klasa sadrži Event-ove koje je izgenerisao {@link Disc} u redu za čekanje i služi za raspoređivanje njih
  */
 public class Scheduler {
 

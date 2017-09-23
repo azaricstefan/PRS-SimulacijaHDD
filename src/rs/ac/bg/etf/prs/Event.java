@@ -32,6 +32,6 @@ public class Event {
 
     @Override
     public String toString() {
-        return "Tip: " + type + " Vreme: " + time;
+        return "Type: " + type + " Time: " + time;
     }
 }

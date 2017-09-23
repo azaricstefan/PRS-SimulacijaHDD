@@ -28,22 +28,10 @@ public class Disc extends Thread{
 
     private Scheduler myScheduler;
 
-    /**
-     * Rotational delay time
-     */
-    private Double Trd;
-
-
-    /**
-     * Time to read one sector/part
-     */
-    private Double Ttr;
-
     private Double sizeOfOneRecord;
 
     private Queue<Request> queue = new ArrayDeque<>();
 
-    //TODO: sta treba da ima disk jos?
 
     public Disc(int rpm, int cylinders, int sectors, Double sizeOfOneRecord, Scheduler myScheduler) {
         this.rpm = rpm;
@@ -53,6 +41,9 @@ public class Disc extends Thread{
         this.myScheduler = myScheduler;
     }
 
+    /**
+     * @return 60/RPM(of the disc)
+     */
     public double Trev(){
         return 60.0/rpm;
     }
@@ -69,7 +60,7 @@ public class Disc extends Thread{
                 if (Event.TypeOfPhase.SEEK_PHASE == curPhase) {
                     if (curRequest.getNumOfStaza() == curCylinder) {
                         curPhase = Event.TypeOfPhase.ROTATIONAL_DELAY_PHASE;
-                        myScheduler.putEvent(new Event(curTime*1/sectors*Trev()*1000, Event.TypeOfPhase.SEEK_PHASE));
+                        myScheduler.putEvent(new Event(curTime*sizeOfOneRecord*Trev()*1000, Event.TypeOfPhase.SEEK_PHASE));
                         curTime = 0;
                     } else if (curRequest.getNumOfStaza() < curCylinder) {
                         curCylinder--;
@@ -78,12 +69,12 @@ public class Disc extends Thread{
 
                 if (Event.TypeOfPhase.ROTATIONAL_DELAY_PHASE == curPhase) {
                     if (curRequest.getNumOfSector() == curSector) {
-                        myScheduler.putEvent(new Event(curTime*1.0/sectors*Trev()*1000, Event.TypeOfPhase.ROTATIONAL_DELAY_PHASE));
+                        myScheduler.putEvent(new Event(curTime*sizeOfOneRecord*Trev()*1000, Event.TypeOfPhase.ROTATIONAL_DELAY_PHASE));
                         curTime = 0;
                         curPhase = Event.TypeOfPhase.TRANSFER_TIME_PHASE;
                     }
                 } else if (curPhase == Event.TypeOfPhase.TRANSFER_TIME_PHASE) {
-                    myScheduler.putEvent(new Event(1.0/sectors*Trev()*1000, Event.TypeOfPhase.TRANSFER_TIME_PHASE));
+                    myScheduler.putEvent(new Event(sizeOfOneRecord*Trev()*1000, Event.TypeOfPhase.TRANSFER_TIME_PHASE));
                     curTime = 0;
                     curRequest = null;
                 }
@@ -91,37 +82,15 @@ public class Disc extends Thread{
 
             }
             curSector = (curSector + 1) % sectors; // vrti se
-            curTime++;
+            curTime++; //simuliraj vreme
         }
     }
 
-    /**
-     * First phase, calculate Trd?
-     */
-    public void seek(){
-        this.Trd = 30/(rpm*1.0); // (60/rpm)/2
-        //TODO: phase 1 calculation
-    }
 
     /**
-     * Second phase, calculate rotational delay
+     * Put a request from {@link RequestGenerator} in the queue of the Disc
+     * @param request
      */
-    public void rotationalDelay(){
-        this.Ttr = sizeOfOneRecord * Trd;
-        //TODO: phase 2 calculation
-
-    }
-
-    /**
-     * Third phase, calculate transfer time
-     */
-    public void transferTime(){
-        //TODO: phase 3 calculation [transfer time]
-        //broj slogova koji trebaju da se ucitaju?
-    }
-
-
-
     public void putRequest(Request request) {
         queue.add(request);
     }
