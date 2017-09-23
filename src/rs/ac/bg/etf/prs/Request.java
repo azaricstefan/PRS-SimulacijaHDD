@@ -6,15 +6,34 @@ package rs.ac.bg.etf.prs;
  */
 public class Request {
 
-    private int fromCylinder;
-    private int toCylinder;
+    private int numOfSector;
+    private int numOfStaza;
 
-    public Request(int fromCylinder, int toCylinder){
-        this.fromCylinder = fromCylinder;
-        this.toCylinder = toCylinder;
+    public Request(int numOfStaza, int numOfSector){
+        this.numOfSector = numOfSector;
+        this.numOfStaza = numOfStaza;
     }
 
-    public int difference(){
-        return Math.abs(toCylinder - fromCylinder);
+    @Override
+    public String toString() {
+        return "Broj staze: " + numOfStaza + " Broj sektora: " + numOfSector;
+
+    }
+
+
+    public int getNumOfSector() {
+        return numOfSector;
+    }
+
+    public void setNumOfSector(int numOfSector) {
+        this.numOfSector = numOfSector;
+    }
+
+    public int getNumOfStaza() {
+        return numOfStaza;
+    }
+
+    public void setNumOfStaza(int numOfStaza) {
+        this.numOfStaza = numOfStaza;
     }
 }

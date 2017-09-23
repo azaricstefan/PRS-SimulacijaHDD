@@ -12,21 +12,23 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class RequestGenerator {
 
-    private Scheduler myScheduler;
+    private Disc myDisc;
 
 
-    public RequestGenerator(Scheduler scheduler) {
-        myScheduler = scheduler;
+    public RequestGenerator(Disc disc) {
+        myDisc = disc;
     }
 
-    public void generate(int amountOfRequests, int min, int max) {
+    public void generate(int amountOfRequests, int min, int max, int numOfSector) {
 
         for (int i = 0; i < amountOfRequests; i++){
-            int randomFrom = ThreadLocalRandom.current().nextInt(min, max + 1);
-            int randomTo = ThreadLocalRandom.current().nextInt(min, max + 1);
 
-            Request request = new Request(randomFrom,randomTo);
-            myScheduler.putRequest(request);
+            int stazaNum = ThreadLocalRandom.current().nextInt(min, max + 1);
+
+            int sectorNum = ThreadLocalRandom.current().nextInt(0, numOfSector);
+
+            Request request = new Request(stazaNum, sectorNum);
+            myDisc.putRequest(request);
         }
     }
 

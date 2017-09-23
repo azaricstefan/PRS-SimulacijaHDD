@@ -1,6 +1,8 @@
 package rs.ac.bg.etf.prs;
 
 import java.util.ArrayDeque;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -9,13 +11,13 @@ import java.util.Queue;
  */
 
 /**
- * Ova klasa sadrži zahteve koje je izgenerisao {@link RequestGenerator} u redu za čekanje
+ * Ova klasa sadrži Event-ove koje je izgenerisao {@link Disc} u redu za čekanje
  */
 public class Scheduler {
 
     private Request currentRequest;
 
-    private Queue<Request> queue;
+    private Queue<Event> queue;
 
     public Scheduler(){
         queue = new ArrayDeque<>();
@@ -25,11 +27,21 @@ public class Scheduler {
      *
      * @return next request from the queue or null if no more requests
      */
-    public Request nextRequest() {
-        return queue.poll();
+    public List<Event> nextEvent() {
+        while(queue.isEmpty());
+        List<Event> ret = new LinkedList<>();
+
+        ret.add(queue.poll());
+        while(queue.isEmpty());
+
+        ret.add(queue.poll());
+        while(queue.isEmpty());
+
+        ret.add(queue.poll());
+        return ret;
     }
 
-    public void putRequest(Request request){
-        queue.add(request);
+    public void putEvent(Event event){
+        queue.add(event);
     }
 }
