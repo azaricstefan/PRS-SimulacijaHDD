@@ -1,44 +1,39 @@
 package rs.ac.bg.etf.prs;
 
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.function.Sqrt;
+import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
+import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
+import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
+
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 /**
  * Project name: PRS-SimulacijaHDD
  * Created by Stefan on 20-Sep-17.
  */
-public class Disc extends Thread{
+public class Disc{
 
     /**
      * Revolutions per minute
      */
-    private int rpm;
-    private int cylinders;
-    private int sectors; //check: is this needed?
+    private  int rpm;
+    private  int cylinders;
 
-    /**
-     * Current placement of the head
-     */
-    private int curCylinder;
-    private int curSector;
-    private Request curRequest;
-    private long curTime;
-
-    private Event.TypeOfPhase curPhase;
-
-    private Scheduler myScheduler;
 
     private Double sizeOfOneRecord;
 
-    private Queue<Request> queue = new ArrayDeque<>();
+    private boolean busy;
+    private static int cylinder = 100;
 
-
-    public Disc(int rpm, int cylinders, int sectors, Double sizeOfOneRecord, Scheduler myScheduler) {
+    public Disc(int rpm, int cylinders, Double sizeOfOneRecord) {
         this.rpm = rpm;
         this.cylinders = cylinders;
-        this.sectors = sectors;
         this.sizeOfOneRecord = sizeOfOneRecord;
-        this.myScheduler = myScheduler;
+        this.busy = false;
     }
 
     /**
@@ -48,58 +43,28 @@ public class Disc extends Thread{
         return 60.0/rpm;
     }
 
-    @Override
-    public void run() {
-        while(!interrupted()) {
-            if(curRequest == null) {
-                curTime = 0;
-                curRequest = queue.poll();
-                curPhase = Event.TypeOfPhase.SEEK_PHASE;
-            }
-            if(curRequest != null) {
-                if (Event.TypeOfPhase.SEEK_PHASE == curPhase) {
-                    if (curRequest.getNumOfStaza() == curCylinder) {
-                        curPhase = Event.TypeOfPhase.ROTATIONAL_DELAY_PHASE;
-                        myScheduler.putEvent(new Event(curTime*sizeOfOneRecord*Trev()*1000, Event.TypeOfPhase.SEEK_PHASE));
-                        curTime = 0;
-                    } else if (curRequest.getNumOfStaza() < curCylinder) {
-                        curCylinder--;
-                    } else curCylinder++;
-                }
-
-                if (Event.TypeOfPhase.ROTATIONAL_DELAY_PHASE == curPhase) {
-                    if (curRequest.getNumOfSector() == curSector) {
-                        myScheduler.putEvent(new Event(curTime*sizeOfOneRecord*Trev()*1000, Event.TypeOfPhase.ROTATIONAL_DELAY_PHASE));
-                        curTime = 0;
-                        curPhase = Event.TypeOfPhase.TRANSFER_TIME_PHASE;
-                    }
-                } else if (curPhase == Event.TypeOfPhase.TRANSFER_TIME_PHASE) {
-                    myScheduler.putEvent(new Event(sizeOfOneRecord*Trev()*1000, Event.TypeOfPhase.TRANSFER_TIME_PHASE));
-                    curTime = 0;
-                    curRequest = null;
-                }
-
-
-            }
-            curSector = (curSector + 1) % sectors; // vrti se
-            curTime++; //simuliraj vreme
-        }
+    private Double calculateIntegral(double request){
+        return (2.0/Math.pow(cylinder,2))*
+                Math.abs(cylinder-request)*
+                (Math.pow(request,1.5)/(1.5));
     }
 
 
-    /**
-     * Put a request from {@link RequestGenerator} in the queue of the Disc
-     * @param request
-     */
-    public void putRequest(Request request) {
-        queue.add(request);
+    public List<Double> receiveRequest(double request) {
+        busy = true;
+        Double Tam = calculateIntegral(request);
+        Double Trd = (1.0/2.0)*Trev(); // odredi po formuli
+        Double Ttr = (sizeOfOneRecord)*Trev();
+        Double Tuk = Tam + Trd + Ttr;
+        List<Double> list = new ArrayList<>();
+        list.add(Tam);
+        list.add(Trd);
+        list.add(Ttr);
+        busy = false;
+        return list;
     }
 
-    /**
-     * Get next request from the Disc    queue
-     * @return null if queue is empty
-     */
-    public Request getRequest(){
-        return queue.poll();
+    public boolean isBusy() {
+        return busy;
     }
 }

@@ -1,5 +1,8 @@
 package rs.ac.bg.etf.prs;
 
+import org.uncommons.maths.random.ExponentialGenerator;
+
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -10,26 +13,37 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Ova klasa generise zahteve
  */
-public class RequestGenerator {
+public class RequestGenerator extends Thread{
 
-    private Disc myDisc;
+    private Random rng3;
+    private MyQueue myQueue;
+    private int maxCylinder;
+    private ExponentialGenerator exponentialGenerator;
 
-
-    public RequestGenerator(Disc disc) {
-        myDisc = disc;
+    public RequestGenerator(int randSeed, int expRate, MyQueue myQueue, int maxCylinder) {
+        rng3 = new Random(randSeed);
+        this.maxCylinder = maxCylinder;
+        this.myQueue = myQueue;
+        exponentialGenerator = new ExponentialGenerator(expRate,rng3);
     }
 
-    public void generate(int amountOfRequests, int min, int max, int numOfSector) {
-
-        for (int i = 0; i < amountOfRequests; i++){
-
-            int stazaNum = ThreadLocalRandom.current().nextInt(min, max + 1);
-
-            int sectorNum = ThreadLocalRandom.current().nextInt(0, numOfSector);
-
-            Request request = new Request(stazaNum, sectorNum);
-            myDisc.putRequest(request);
+    @Override
+    public void run() {
+        boolean done = false;
+        while(!done){
+            try {
+                Double expValue = exponentialGenerator.nextValue();
+                System.out.println("Dodat request![" + expValue +" ]");
+                if(expValue > 1)
+                    expValue = maxCylinder*1.00;
+                else
+                    expValue = expValue * maxCylinder;
+                myQueue.getQueue().add(expValue);
+                sleep(500);
+            } catch (InterruptedException e) {
+                System.out.println("Request generator: STOPPED!");
+                done = true;
+            }
         }
     }
-
 }
