@@ -11,17 +11,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class MyQueue {
 
-    private Queue<Double> queue;
+    private List<Request> queue;
 
     public MyQueue(){
-        queue = new ConcurrentLinkedQueue<>();
+        queue = new ArrayList<>();
     }
 
-    public Queue<Double> getQueue() {
+    public List<Request> getQueue() {
         return queue;
     }
 
-    public void setQueue(Queue<Double> queue) {
+    public void setQueue(List<Request> queue) {
         this.queue = queue;
     }
 }

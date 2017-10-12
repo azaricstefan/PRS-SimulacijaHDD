@@ -19,12 +19,14 @@ public class RequestGenerator extends Thread{
     private MyQueue myQueue;
     private int maxCylinder;
     private ExponentialGenerator exponentialGenerator;
+    int id;
 
     public RequestGenerator(int randSeed, int expRate, MyQueue myQueue, int maxCylinder) {
         rng3 = new Random(randSeed);
         this.maxCylinder = maxCylinder;
         this.myQueue = myQueue;
         exponentialGenerator = new ExponentialGenerator(expRate,rng3);
+        id = 0;
     }
 
     @Override
@@ -38,7 +40,10 @@ public class RequestGenerator extends Thread{
                     expValue = maxCylinder*1.00;
                 else
                     expValue = expValue * maxCylinder;
-                myQueue.getQueue().add(expValue);
+
+                Request request = new Request(expValue,id++);
+                System.out.println("Dodat request![" + expValue +" ]");
+                myQueue.getQueue().add(request);
                 sleep(500);
             } catch (InterruptedException e) {
                 System.out.println("Request generator: STOPPED!");

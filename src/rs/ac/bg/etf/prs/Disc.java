@@ -15,7 +15,7 @@ import java.util.Queue;
  * Project name: PRS-SimulacijaHDD
  * Created by Stefan on 20-Sep-17.
  */
-public class Disc{
+public class Disc implements Observable{
 
     /**
      * Revolutions per minute
@@ -23,6 +23,7 @@ public class Disc{
     private  int rpm;
     private  int cylinders;
 
+    private List<Observer> observers;
 
     private Double sizeOfOneRecord;
 
@@ -34,6 +35,7 @@ public class Disc{
         this.cylinders = cylinders;
         this.sizeOfOneRecord = sizeOfOneRecord;
         this.busy = false;
+        observers = new ArrayList<>();
     }
 
     /**
@@ -50,9 +52,9 @@ public class Disc{
     }
 
 
-    public List<Double> receiveRequest(double request) {
-        busy = true;
-        Double Tam = calculateIntegral(request);
+    public List<Double> receiveRequest(Request request) {
+        int requestId = request.getId();
+        Double Tam = calculateIntegral(request.getLength());
         Double Trd = (1.0/2.0)*Trev(); // odredi po formuli
         Double Ttr = (sizeOfOneRecord)*Trev();
         Double Tuk = Tam + Trd + Ttr;
@@ -60,11 +62,28 @@ public class Disc{
         list.add(Tam);
         list.add(Trd);
         list.add(Ttr);
-        busy = false;
+        notifyObserver(requestId);
         return list;
     }
 
     public boolean isBusy() {
         return busy;
+    }
+
+    @Override
+    public void addObserver(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObserver(int reqId) {
+        for(Observer o: observers){
+            o.update(reqId);
+        }
     }
 }

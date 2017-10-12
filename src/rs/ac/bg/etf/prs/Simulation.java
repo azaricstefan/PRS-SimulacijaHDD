@@ -19,15 +19,16 @@ public class Simulation {
         Disc disc = new Disc(7200, 2000, 1.0 / numOfSector); //RPM,CYLINDERS,SIZEofONErecord,SCHEDULER
         MyQueue myQueue = new MyQueue();
         requestGenerator = new RequestGenerator(randSeed, expRate, myQueue, max);
-        requestGenerator.start(); //kreni sa generisanjem zahteva na 500ms
+        requestGenerator.start();
 
         myRunner = new MyRunner(disc, myQueue);
-        myRunner.start();
+        disc.addObserver(myRunner);
+        myRunner.startRunner();
 
         while (true) {
             long estimatedTime = System.nanoTime() - startTime;
             double seconds = (double) estimatedTime / 1000000000.0;
-            if (seconds > 5) {
+            if (seconds > 5) {//izvrsi simulaciju toliko sekundi
                 stopSimulation();
                 break;
             }
@@ -36,6 +37,6 @@ public class Simulation {
 
     public static void stopSimulation(){
         requestGenerator.interrupt();
-        myRunner.interrupt();
+        //myRunner.interrupt();
     }
 }

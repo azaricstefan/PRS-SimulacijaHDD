@@ -9,7 +9,7 @@ import java.util.List;
  * Project name: PRS-SimulacijaHDD
  * Created by staz on 1.10.2017. 21:37
  */
-public class MyRunner extends Thread{
+public class MyRunner extends Thread implements Observer{
 
     private Disc disc;
     private MyQueue myQueue;
@@ -29,9 +29,19 @@ public class MyRunner extends Thread{
         sum1 = 0.0;
         sum2 = 0.0;
         sum3 = 0.0;
+        try {
+            csvWriter = new PrintWriter("csvResult1.txt", "UTF-8");
+        } catch (Exception e) { e.printStackTrace(); }
+        csvWriter.println("Request number, Phase 1(SeekPhase), Phase 2 (Rotational Delay), Phase 3 (Transfer Time)");
     }
 
-    public void sendToHDD(double request){
+    public void startRunner() {
+        while(myQueue.getQueue().isEmpty());
+        Request firstRequest = this.myQueue.getQueue().get(0);
+        this.sendToHDD(firstRequest);
+    }
+
+    public void sendToHDD(Request request){
         List<Double> list = disc.receiveRequest(request); //HDD obradi zahtev
         try {
             csvWriter.print(doneRequests + ",");
@@ -64,28 +74,49 @@ public class MyRunner extends Thread{
         }
     }
 
+ //   @Override
+   // public void run() {
+//        try {
+//            csvWriter = new PrintWriter("csvResult1.txt", "UTF-8");
+//        } catch (Exception e) { e.printStackTrace(); }
+//        csvWriter.println("Request number, Phase 1(SeekPhase), Phase 2 (Rotational Delay), Phase 3 (Transfer Time)");
+
+//        while(!done){
+//            while(disc.isBusy()); //cekaj da disk zavrsi sa poslom
+//            while(myQueue.getQueue().isEmpty());
+//            sendToHDD(myQueue.getQueue().remove(0).getLength()); //posalji mu posao
+//        }
+//        System.out.println("Ostalo je jos: " + myQueue.getQueue().size() + " zahteva.");
+//        while(!myQueue.getQueue().isEmpty())
+//            sendToHDD(myQueue.getQueue().remove(0).getLength()); //posalji mu posao
+
+//        System.out.println("Prosecno vreme po zahtevu : " + sum/doneRequests);
+//        System.out.println("Prosecno vreme po zahtevu [FAZA 1]:" + sum1/doneRequests);
+//        System.out.println("Prosecno vreme po zahtevu [FAZA 2]: " + sum2/doneRequests);
+//        System.out.println("Prosecno vreme po zahtevu [FAZA 3]: " + sum3/doneRequests);
+//        System.out.println("RUNNER: GOTOV, zavrsio preostale zahteve!");
+//        if(csvWriter!= null)
+//            csvWriter.close();
+    //}
+
     @Override
-    public void run() {
-        try {
-            csvWriter = new PrintWriter("csvResult1.txt", "UTF-8");
-        } catch (Exception e) { e.printStackTrace(); }
-        csvWriter.println("Request number, Phase 1(SeekPhase), Phase 2 (Rotational Delay), Phase 3 (Transfer Time)");
+    public void update(int requestId) {
+        Request r = myQueue.getQueue().remove(0);
 
-        while(!done){
-            while(disc.isBusy()); //cekaj da disk zavrsi sa poslom
-            while(myQueue.getQueue().isEmpty());
-            sendToHDD(myQueue.getQueue().poll()); //posalji mu posao
+        if(myQueue.getQueue().isEmpty()){
+            //krajnji ispis
+            System.out.println("Prosecno vreme po zahtevu : " + sum/doneRequests);
+            System.out.println("Prosecno vreme po zahtevu [FAZA 1]:" + sum1/doneRequests);
+            System.out.println("Prosecno vreme po zahtevu [FAZA 2]: " + sum2/doneRequests);
+            System.out.println("Prosecno vreme po zahtevu [FAZA 3]: " + sum3/doneRequests);
+
+            if(csvWriter != null)
+                csvWriter.close();
+        } else {
+            sendToHDD(r);
         }
-        System.out.println("Ostalo je jos: " + myQueue.getQueue().size() + " zahteva.");
-        while(!myQueue.getQueue().isEmpty())
-            sendToHDD(myQueue.getQueue().poll()); //posalji mu posao
 
-        System.out.println("Prosecno vreme po zahtevu : " + sum/doneRequests);
-        System.out.println("Prosecno vreme po zahtevu [FAZA 1]:" + sum1/doneRequests);
-        System.out.println("Prosecno vreme po zahtevu [FAZA 2]: " + sum2/doneRequests);
-        System.out.println("Prosecno vreme po zahtevu [FAZA 3]: " + sum3/doneRequests);
-        System.out.println("RUNNER: GOTOV, zavrsio preostale zahteve!");
-        if(csvWriter!= null)
-            csvWriter.close();
+
+
     }
 }
