@@ -25,10 +25,6 @@ public class Event {
         return time;
     }
 
-    public void setTime(double time) {
-        this.time = time;
-    }
-
     @Override
     public String toString() {
         return "Type: " + type + " Time: " + time;

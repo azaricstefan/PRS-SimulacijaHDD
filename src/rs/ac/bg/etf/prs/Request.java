@@ -2,32 +2,30 @@ package rs.ac.bg.etf.prs;
 
 /**
  * Project name: PRS-SimulacijaHDD
- * Created by staz on 2.10.2017. 10:28
+ * Created by Stefan on 20-Sep-17.
  */
 public class Request {
 
-    private double length;
-    private int id;
+    private int numOfSector;
+    private int numOfStaza;
 
-    public Request(double length, int id) {
-        this.length = length;
-        this.id = id;
+    public Request(int numOfStaza, int numOfSector) {
+        this.numOfSector = numOfSector;
+        this.numOfStaza = numOfStaza;
     }
 
+    @Override
+    public String toString() {
+        return "Broj staze: " + numOfStaza + " Broj sektora: " + numOfSector;
 
-    public double getLength() {
-        return length;
     }
 
-    public void setLength(double length) {
-        this.length = length;
+    public int getNumOfSector() {
+        return numOfSector;
     }
 
-    public int getId() {
-        return id;
+    public int getNumOfStaza() {
+        return numOfStaza;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 }

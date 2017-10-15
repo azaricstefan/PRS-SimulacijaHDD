@@ -15,27 +15,39 @@ import java.util.Queue;
  * Project name: PRS-SimulacijaHDD
  * Created by Stefan on 20-Sep-17.
  */
-public class Disc implements Observable{
+public class Disc {
+
+    private Double sizeOfOneRecord;
+
+    private static int cylinder = 100;
+
+    private MyQueue myQueue;
+    private Event.TypeOfPhase curPhase;
+
+    /**
+     * Current placement of the head
+     */
+    private int curCylinder;
+    private int curSector;
+    private Request curRequest;
 
     /**
      * Revolutions per minute
      */
-    private  int rpm;
-    private  int cylinders;
+    private int rpm;
+    private int cylinders;
+    private int sectors; //check: is this needed?
 
-    private List<Observer> observers;
-
-    private Double sizeOfOneRecord;
-
-    private boolean busy;
-    private static int cylinder = 100;
-
-    public Disc(int rpm, int cylinders, Double sizeOfOneRecord) {
+    public Disc(int rpm, int cylinders, Double sizeOfOneRecord, int sectors) {
         this.rpm = rpm;
         this.cylinders = cylinders;
+        this.sectors = sectors;
         this.sizeOfOneRecord = sizeOfOneRecord;
-        this.busy = false;
-        observers = new ArrayList<>();
+        this.myQueue = new MyQueue();
+    }
+
+    public MyQueue getMyQueue() {
+        return myQueue;
     }
 
     /**
@@ -45,45 +57,39 @@ public class Disc implements Observable{
         return 60.0/rpm;
     }
 
-    private Double calculateIntegral(double request){
-        return (2.0/Math.pow(cylinder,2))*
-                Math.abs(cylinder-request)*
-                (Math.pow(request,1.5)/(1.5));
-    }
+    public void process() {
+        if (curRequest == null) {
+            curRequest = myQueue.getQueue().poll();
+            curPhase = Event.TypeOfPhase.SEEK_PHASE;
+        }
 
+        if (curRequest != null) {
+            if (Event.TypeOfPhase.SEEK_PHASE == curPhase) {
+                int cylinderDiff = Math.abs(curRequest.getNumOfStaza() - curCylinder);
+                Scheduler.Instance().setCurTime(cylinderDiff * sizeOfOneRecord * Trev() * 1000 + Scheduler.Instance().getCurTime());
+                Scheduler.Instance().putEvent(new Event(cylinderDiff * sizeOfOneRecord * Trev() * 1000, Event.TypeOfPhase.SEEK_PHASE));
+                curSector = (curSector + cylinderDiff) % sectors; // vrti se
+                curPhase = Event.TypeOfPhase.ROTATIONAL_DELAY_PHASE;
+            } else if (Event.TypeOfPhase.ROTATIONAL_DELAY_PHASE == curPhase) {
+                int sectorDiff = curRequest.getNumOfSector() - curSector;
+                if (sectorDiff < 0)
+                    sectorDiff += sectors;
+                Scheduler.Instance().setCurTime(sectorDiff * sizeOfOneRecord * Trev() * 1000 + Scheduler.Instance().getCurTime());
+                Scheduler.Instance().putEvent(new Event(sectorDiff * sizeOfOneRecord * Trev() * 1000, Event.TypeOfPhase.ROTATIONAL_DELAY_PHASE));
+                curSector = curRequest.getNumOfSector(); // vrti se
+                curPhase = Event.TypeOfPhase.TRANSFER_TIME_PHASE;
 
-    public List<Double> receiveRequest(Request request) {
-        int requestId = request.getId();
-        Double Tam = calculateIntegral(request.getLength());
-        Double Trd = (1.0/2.0)*Trev(); // odredi po formuli
-        Double Ttr = (sizeOfOneRecord)*Trev();
-        Double Tuk = Tam + Trd + Ttr;
-        List<Double> list = new ArrayList<>();
-        list.add(Tam);
-        list.add(Trd);
-        list.add(Ttr);
-        notifyObserver(requestId);
-        return list;
-    }
-
-    public boolean isBusy() {
-        return busy;
-    }
-
-    @Override
-    public void addObserver(Observer o) {
-        observers.add(o);
-    }
-
-    @Override
-    public void removeObserver(Observer o) {
-        observers.remove(o);
-    }
-
-    @Override
-    public void notifyObserver(int reqId) {
-        for(Observer o: observers){
-            o.update(reqId);
+            } else if (curPhase == Event.TypeOfPhase.TRANSFER_TIME_PHASE) {
+                int oneSector = 1;
+                Scheduler.Instance().setCurTime(oneSector * sizeOfOneRecord * Trev() * 1000 + Scheduler.Instance().getCurTime());
+                Scheduler.Instance().putEvent(new Event(oneSector * sizeOfOneRecord * Trev() * 1000, Event.TypeOfPhase.TRANSFER_TIME_PHASE));
+                curSector = (curSector + oneSector) % sectors; // vrti se
+                curRequest = null;
+            }
+        } else {
+            //nema requesta vrti u prazno
+            Scheduler.Instance().setCurTime(sizeOfOneRecord * Trev() * 1000 + Scheduler.Instance().getCurTime());
+            curSector = (curSector + 1) % sectors; // vrti se
         }
     }
 }

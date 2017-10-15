@@ -1,5 +1,8 @@
 package rs.ac.bg.etf.prs;
 
+import com.sun.jmx.remote.internal.ArrayQueue;
+
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -11,17 +14,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class MyQueue {
 
-    private List<Request> queue;
+    private Queue<Request> queue;
 
     public MyQueue(){
-        queue = new ArrayList<>();
+        queue = new ArrayDeque<Request>();
     }
 
-    public List<Request> getQueue() {
+    public Queue<Request> getQueue() {
         return queue;
     }
 
-    public void setQueue(List<Request> queue) {
-        this.queue = queue;
-    }
 }

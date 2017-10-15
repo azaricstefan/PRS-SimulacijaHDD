@@ -13,42 +13,39 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Ova klasa generise zahteve
  */
-public class RequestGenerator extends Thread{
+public class RequestGenerator {
 
     private Random rng3;
-    private MyQueue myQueue;
     private int maxCylinder;
+    private static RequestGenerator requestGenerator;
     private ExponentialGenerator exponentialGenerator;
-    int id;
+    private long nextRequestTime;
+    private Disc myDisc;
 
-    public RequestGenerator(int randSeed, int expRate, MyQueue myQueue, int maxCylinder) {
+    private RequestGenerator(int randSeed, int expRate, Disc disc) {
         rng3 = new Random(randSeed);
-        this.maxCylinder = maxCylinder;
-        this.myQueue = myQueue;
-        exponentialGenerator = new ExponentialGenerator(expRate,rng3);
-        id = 0;
+        this.myDisc = disc;
+        exponentialGenerator = new ExponentialGenerator(expRate, rng3);
     }
 
-    @Override
-    public void run() {
-        boolean done = false;
-        while(!done){
-            try {
-                Double expValue = exponentialGenerator.nextValue();
-                System.out.println("Dodat request![" + expValue +" ]");
-                if(expValue > 1)
-                    expValue = maxCylinder*1.00;
-                else
-                    expValue = expValue * maxCylinder;
+    public void nextRequest(double time) {
+        while (nextRequestTime <= time) {
+            int stazaNum = ThreadLocalRandom.current().nextInt(Simulation.min, Simulation.max + 1);
+            int sectorNum = ThreadLocalRandom.current().nextInt(0, Scheduler.numOfSector);
+            Request request = new Request(stazaNum, sectorNum);
+            myDisc.getMyQueue().getQueue().add(request);
+            System.out.println("Dodat request VREME[" + nextRequestTime + " ]");
+            nextRequestTime += exponentialGenerator.nextValue() * 200;
+        }
+    }
 
-                Request request = new Request(expValue,id++);
-                System.out.println("Dodat request![" + expValue +" ]");
-                myQueue.getQueue().add(request);
-                sleep(500);
-            } catch (InterruptedException e) {
-                System.out.println("Request generator: STOPPED!");
-                done = true;
-            }
+    public static RequestGenerator Instance() {
+        if (requestGenerator != null) {
+            return requestGenerator;
+        } else {
+            int expRate = 2; //exponential generator param
+            int randSeed = 20; //exponential generator param
+            return requestGenerator = new RequestGenerator(randSeed, expRate, Scheduler.Instance().getMyDisc());
         }
     }
 }
