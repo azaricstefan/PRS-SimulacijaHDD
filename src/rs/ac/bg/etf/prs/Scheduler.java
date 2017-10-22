@@ -1,8 +1,6 @@
 package rs.ac.bg.etf.prs;
 
 import java.util.ArrayDeque;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 /**
@@ -11,7 +9,10 @@ import java.util.Queue;
  */
 
 /**
- * Ova klasa sadrži Event-ove koje je izgenerisao {@link Disc} u redu za čekanje
+ * Ova klasa sadrži Event-ove koje je izgenerisao {@link Disc} u redu za čekanje.
+ * Ova klasa je Singleton.
+ * Ona je zadužena za vreme simulacije.
+ * Sadrži metode za stavljanje novog događaja u red i za uzimanje događaja iz reda.
  */
 public class Scheduler {
 
@@ -24,12 +25,12 @@ public class Scheduler {
 
     public Scheduler(){
         queue = new ArrayDeque<>();
-        myDisc = new Disc(7200, 2000, 1.0 / numOfSector, numOfSector); //RPM,CYLINDERS,SIZEofONErecord,SCHEDULER
+        myDisc = new Disc(7200, 2000, 1.0 / numOfSector, numOfSector); //RPM,CYLINDERS,SIZEofONErecord,numberOfSectors
     }
 
     /**
      *
-     * @return next request from the queue or null if no more requests
+     * @return sledeći događaj iz reda ili null ako nema više događaja
      */
     public Event nextEvent() {
         return queue.poll();
@@ -51,8 +52,11 @@ public class Scheduler {
         return curTime;
     }
 
+    /**
+     * Ova metoda služi za obradu, uzima novi zahtev od generatora zahteva i poziva metodu diska za obradu
+     */
     public void processNow() {
-        RequestGenerator.Instance().nextRequest(curTime);
+        RequestGenerator.Instance().nextRequest(curTime); //generisi zahtev i stavi u red diska
         myDisc.process();
         Event e = Scheduler.Instance().nextEvent();
         if (e != null)

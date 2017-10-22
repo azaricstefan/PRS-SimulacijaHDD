@@ -15,26 +15,25 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class RequestGenerator {
 
-    private Random rng3;
-    private int maxCylinder;
     private static RequestGenerator requestGenerator;
     private ExponentialGenerator exponentialGenerator;
     private long nextRequestTime;
     private Disc myDisc;
 
     private RequestGenerator(int randSeed, int expRate, Disc disc) {
-        rng3 = new Random(randSeed);
+        Random rng3 = new Random(randSeed);
         this.myDisc = disc;
         exponentialGenerator = new ExponentialGenerator(expRate, rng3);
     }
 
     public void nextRequest(double time) {
+        //ako je vreme da se generise novi zahtev onda se generise
         while (nextRequestTime <= time) {
             int stazaNum = ThreadLocalRandom.current().nextInt(Simulation.min, Simulation.max + 1);
             int sectorNum = ThreadLocalRandom.current().nextInt(0, Scheduler.numOfSector);
             Request request = new Request(stazaNum, sectorNum);
             myDisc.getMyQueue().getQueue().add(request);
-            System.out.println("Dodat request VREME[" + nextRequestTime + " ]");
+            System.out.println("Dodat request VREME[" + nextRequestTime + "]");
             nextRequestTime += exponentialGenerator.nextValue() * 200;
         }
     }
